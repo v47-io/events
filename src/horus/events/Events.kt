@@ -13,6 +13,7 @@ interface EventEmitter {
     fun <T : Any> once(key: EventKey<T>, block: (suspend (T) -> Unit))
 
     fun clear(key: EventKey<*>? = null)
+    fun <T : Any> remove(listener: (suspend (T) -> Unit))
 }
 
 fun <T : Any> EventEmitter.emitBlocking(key: EventKey<T>,

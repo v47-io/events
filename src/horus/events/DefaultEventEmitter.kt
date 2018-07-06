@@ -33,4 +33,9 @@ open class DefaultEventEmitter : EventEmitter {
             listenersOnce.forEach { it.value.removeAll { true } }
         }
     }
+
+    override fun <T : Any> remove(listener: suspend (T) -> Unit) {
+        listeners.forEach { it.value.remove(listener) }
+        listenersOnce.forEach { it.value.remove(listener) }
+    }
 }

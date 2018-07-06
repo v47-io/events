@@ -43,6 +43,29 @@ class EventsTest {
 
         emitter.clear(StringEvent)
     }
+
+    @Test
+    fun removeListenerTest() {
+        val emitter = DefaultEventEmitter()
+        emitter.on(StringEvent) {
+            println("Persistent listener")
+        }
+
+        val transientListener: (suspend (StringEvent) -> Unit) = {
+            println("Transient listener")
+        }
+
+        emitter.on(StringEvent, transientListener)
+
+        runBlocking {
+            emitter.emit(StringEvent, StringEvent("Event no. 1"))
+            emitter.emit(StringEvent, StringEvent("Event no. 2"))
+
+            emitter.remove(transientListener)
+
+            emitter.emit(StringEvent, StringEvent("Event no. 3"))
+        }
+    }
 }
 
 data class StringEvent(val string: String) {
