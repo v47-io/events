@@ -39,4 +39,4 @@ test:
 publish:
   stage: publish
   script:
-    - ./gradlew -g /cache/.gradle assemble publish
+    - ./gradlew -g /cache/.gradle clean assemble publish
