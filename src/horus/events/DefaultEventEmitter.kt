@@ -8,6 +8,7 @@ open class DefaultEventEmitter : EventEmitter {
     private val listeners = mutableMapOf<EventKey<*>, MutableList<suspend (Any) -> Unit>>()
     private val listenersOnce = mutableMapOf<EventKey<*>, MutableList<suspend (Any) -> Unit>>()
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun <T : Any> emit(key: EventKey<T>, payload: T) {
         listeners[key]?.forEach {
             try {
