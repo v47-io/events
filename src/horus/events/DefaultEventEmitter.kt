@@ -1,16 +1,28 @@
 package horus.events
 
+import org.slf4j.LoggerFactory
+
 open class DefaultEventEmitter : EventEmitter {
+    private val log = LoggerFactory.getLogger(javaClass)!!
+
     private val listeners = mutableMapOf<EventKey<*>, MutableList<suspend (Any) -> Unit>>()
     private val listenersOnce = mutableMapOf<EventKey<*>, MutableList<suspend (Any) -> Unit>>()
 
     override suspend fun <T : Any> emit(key: EventKey<T>, payload: T) {
         listeners[key]?.forEach {
-            it(payload)
+            try {
+                it(payload)
+            } catch (x: Exception) {
+                log.warn("Caught exception in listener", x)
+            }
         }
 
         listenersOnce[key]?.onEach {
-            it(payload)
+            try {
+                it(payload)
+            } catch (x: Exception) {
+                log.warn("Caught exception in listener", x)
+            }
         }?.removeAll { true }
     }
 
