@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         mavenCentral()
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev/" }
         maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
@@ -30,7 +31,7 @@ apply plugin: 'com.jaredsburrows.license'
 repositories {
     jcenter()
     mavenCentral()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" } // For JaCoCo
+    maven { url "https://dl.bintray.com/kotlin/kotlin-dev/" }
 }
 
 sourceSets {
@@ -63,12 +64,6 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = '1.8'
 }
 
-kotlin {
-    experimental {
-        coroutines 'enable'
-    }
-}
-
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinxVersion"
@@ -94,7 +89,7 @@ detekt {
 }
 
 jacoco {
-    toolVersion = '0.8.2-SNAPSHOT'
+    toolVersion = '0.8.2'
 }
 
 test {
@@ -157,9 +152,9 @@ publishing {
                 name 'vemilyus-nexus'
 
                 if (project.version.endsWith('-SNAPSHOT'))
-                    url 'https://repo.vemilyus.com/m2/snapshots/'
+                    url 'https://nexus.vemilyus.com/repository/snapshots/'
                 else
-                    url 'https://repo.vemilyus.com/m2/releases/'
+                    url 'https://nexus.vemilyus.com/repository/releases/'
 
                 credentials(PasswordCredentials) {
                     username nexusUser

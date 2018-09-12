@@ -1,8 +1,8 @@
 package horus.events
 
-import kotlinx.coroutines.experimental.runBlocking
-import kotlin.coroutines.experimental.CoroutineContext
-import kotlin.coroutines.experimental.EmptyCoroutineContext
+import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 interface EventKey<out T : Any>
 
