@@ -110,7 +110,7 @@ release {
 }
 
 dokka {
-    moduleName = 'horus-vfs3'
+    moduleName = 'horus-events'
 
     outputFormat = 'html'
     outputDirectory = "$buildDir/kdoc"
