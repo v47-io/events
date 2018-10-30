@@ -110,7 +110,7 @@ dokka {
     moduleName = 'horus-events'
 
     outputFormat = 'html'
-    outputDirectory = "$buildDir/kdoc"
+    outputDirectory = "$buildDir/javadoc"
 
     jdkVersion = 8
 
@@ -124,7 +124,12 @@ task packageSources(type: Jar) {
     from sourceSets.main.allSource
 }
 
-artifacts.archives packageSources
+task packageJavadoc(type: Jar, dependsOn: dokka) {
+    classifier = 'javadoc'
+    from "$buildDir/javadoc"
+}
+
+artifacts.archives packageSources, packageJavadoc
 
 publishing {
     publications {
@@ -136,6 +141,10 @@ publishing {
 
             artifact packageSources {
                 classifier 'sources'
+            }
+
+            artifact packageJavadoc {
+                classifier 'javadoc'
             }
         }
     }
