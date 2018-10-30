@@ -1,13 +1,11 @@
 buildscript {
     repositories {
-        mavenCentral()
-        maven { url "https://dl.bintray.com/kotlin/kotlin-dev/" }
-        maven { url "https://plugins.gradle.org/m2" }
+        maven { url 'https://nexus.vemilyus.com/repository/maven-all/' }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
-        classpath "gradle.plugin.io.gitlab.arturbosch:detekt-gradle-plugin:1.0.0.$detektPluginVersion"
+        classpath "gradle.plugin.io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektPluginVersion"
         classpath "net.researchgate:gradle-release:$releasePluginVersion"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
 
@@ -29,9 +27,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jaredsburrows.license'
 
 repositories {
-    jcenter()
-    mavenCentral()
-    maven { url "https://dl.bintray.com/kotlin/kotlin-dev/" }
+    maven { url 'https://nexus.vemilyus.com/repository/maven-all/' }
 }
 
 sourceSets {
@@ -79,12 +75,15 @@ dependencies {
 }
 
 detekt {
-    version = "1.0.0.$detektPluginVersion"
-    profile('main') {
-        input = "$projectDir/src"
-        config = "$projectDir/detekt.yml"
-        filters = '.*test.*,.*/resources/.*,.*/tmp/.*'
-        output = "$buildDir/reports"
+    input = files('src')
+    config = files('detekt.yml')
+    filters = '.*test.*,.*/resources/.*,.*/tmp/.*'
+
+    reports {
+        xml {
+            enabled = true
+            destination = file("$buildDir/reports/detekt.xml")
+        }
     }
 }
 
@@ -99,8 +98,6 @@ test {
     }
 }
 
-detektCheck.dependsOn('test')
-check.dependsOn('detektCheck')
 jacocoTestReport.dependsOn('check')
 build.dependsOn('jacocoTestReport')
 build.dependsOn('licenseReport')

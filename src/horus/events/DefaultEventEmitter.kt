@@ -2,7 +2,19 @@ package horus.events
 
 import org.slf4j.LoggerFactory
 
-open class DefaultEventEmitter : EventEmitter {
+/**
+ * This is the default implementation of an event emitter which can be extended
+ * or delegated to.
+ *
+ * It provides the option to 'fail fast' which means that exceptions thrown
+ * by event listeners aren't logged, but rethrown.
+ *
+ * @param failFast Indicates whether to rethrow exceptions caused by event handlers
+ *
+ * @since Horus Events 1.0.0
+ */
+@SinceKotlin("1.3")
+open class DefaultEventEmitter(private val failFast: Boolean = false) : EventEmitter {
     private val log = LoggerFactory.getLogger(javaClass)!!
 
     private val listeners = mutableMapOf<EventKey<*>, MutableList<suspend (Any) -> Unit>>()
@@ -14,7 +26,10 @@ open class DefaultEventEmitter : EventEmitter {
             try {
                 it(payload)
             } catch (x: Exception) {
-                log.warn("Caught exception in listener", x)
+                if (failFast)
+                    throw x
+                else
+                    log.warn("Caught exception in listener", x)
             }
         }
 
@@ -22,7 +37,10 @@ open class DefaultEventEmitter : EventEmitter {
             try {
                 it(payload)
             } catch (x: Exception) {
-                log.warn("Caught exception in listener", x)
+                if (failFast)
+                    throw x
+                else
+                    log.warn("Caught exception in listener", x)
             }
         }?.removeAll { true }
     }

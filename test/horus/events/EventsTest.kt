@@ -1,21 +1,36 @@
 package horus.events
 
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EventsTest {
+    private val emitCheckList = listOf(
+            StringEvent("This is a string!"),
+            StringEvent("This is a string!"),
+            StringEvent("This is another string!")
+    )
+
+    private val removeCheckList = listOf(
+            StringEvent("Event no. 1"),
+            StringEvent("Event no. 1"),
+            StringEvent("Event no. 2"),
+            StringEvent("Event no. 2"),
+            StringEvent("Event no. 3")
+    )
+
     @Test
     fun emitTest() {
+        val events = mutableListOf<StringEvent>()
+
         val emitter = DefaultEventEmitter()
         emitter.on(StringEvent) {
-            println("on $StringEvent")
-            println(it.string)
+            events += it
         }
         emitter.once(StringEvent) {
-            println("once $StringEvent")
-            println(it.string)
+            events += it
         }
 
         runBlocking {
@@ -24,35 +39,41 @@ class EventsTest {
         }
 
         emitter.clear()
+
+        assertIterableEquals(emitCheckList, events)
     }
 
     @Test
     fun emitBlockingTest() {
+        val events = mutableListOf<StringEvent>()
+
         val emitter = DefaultEventEmitter()
         emitter.on(StringEvent) {
-            println("on $StringEvent")
-            println(it.string)
+            events += it
         }
         emitter.once(StringEvent) {
-            println("once $StringEvent")
-            println(it.string)
+            events += it
         }
 
         emitter.emitBlocking(StringEvent, StringEvent("This is a string!"))
         emitter.emitBlocking(StringEvent, StringEvent("This is another string!"))
 
         emitter.clear(StringEvent)
+
+        assertIterableEquals(emitCheckList, events)
     }
 
     @Test
     fun removeListenerTest() {
+        val events = mutableListOf<StringEvent>()
+
         val emitter = DefaultEventEmitter()
         emitter.on(StringEvent) {
-            println("Persistent listener")
+            events += it
         }
 
         val transientListener: (suspend (StringEvent) -> Unit) = {
-            println("Transient listener")
+            events += it
         }
 
         emitter.on(StringEvent, transientListener)
@@ -65,6 +86,8 @@ class EventsTest {
 
             emitter.emit(StringEvent, StringEvent("Event no. 3"))
         }
+
+        assertIterableEquals(removeCheckList, events)
     }
 }
 
