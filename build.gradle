@@ -1,6 +1,8 @@
 buildscript {
     repositories {
-        maven { url 'https://nexus.vemilyus.com/repository/maven-all/' }
+        jcenter()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2" }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -10,9 +12,12 @@ buildscript {
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
 
         classpath "com.jaredsburrows:gradle-license-plugin:0.8.41"
+
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
     }
 }
 
+apply plugin: 'java-library'
 apply plugin: 'kotlin'
 
 apply plugin: 'jacoco'
@@ -27,7 +32,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jaredsburrows.license'
 
 repositories {
-    maven { url 'https://nexus.vemilyus.com/repository/maven-all/' }
+    mavenCentral()
 }
 
 sourceSets {
@@ -52,17 +57,17 @@ sourceSets {
 compileKotlin {
     kotlinOptions {
         freeCompilerArgs = ['-Xno-param-assertions', '-Xno-call-assertions']
-        kotlinOptions.jvmTarget = '1.8'
+        kotlinOptions.jvmTarget = '1.6'
     }
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = '1.8'
+    kotlinOptions.jvmTarget = '1.6'
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kotlinxVersion"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion"
 
     compile "org.slf4j:slf4j-api:$slf4jVersion"
 
@@ -133,7 +138,7 @@ artifacts.archives packageSources, packageJavadoc
 
 publishing {
     publications {
-        mavenProject(MavenPublication) {
+        MavenPublication(MavenPublication) {
             from components.java
             groupId project.group
             artifactId project.name
@@ -148,25 +153,22 @@ publishing {
             }
         }
     }
+}
 
-    def nexusUser = project.hasProperty('nexusUser') ? project.property('nexusUser') : System.getenv('NEXUS_USER')
-    def nexusPass = project.hasProperty('nexusPass') ? project.property('nexusPass') : System.getenv('NEXUS_PASS')
+def bintrayUser = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+def bintrayKey = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.getenv('BINTRAY_KEY')
 
-    if (nexusUser != null && nexusPass != null) {
-        repositories {
-            maven {
-                name 'vemilyus-nexus'
+if (bintrayUser != null && bintrayKey != null && !project.version.endsWith('-SNAPSHOT')) {
+    bintray {
+        user = bintrayUser
+        key = bintrayKey
+        publications = ['MavenPublication']
 
-                if (project.version.endsWith('-SNAPSHOT'))
-                    url 'https://nexus.vemilyus.com/repository/snapshots/'
-                else
-                    url 'https://nexus.vemilyus.com/repository/releases/'
-
-                credentials(PasswordCredentials) {
-                    username nexusUser
-                    password nexusPass
-                }
-            }
+        pkg {
+            repo = 'horus'
+            name = project.name
+            licenses = ['Apache-2.0']
+            vcsUrl = 'https://github.com/vemilyus/horus-events'
         }
     }
 }
