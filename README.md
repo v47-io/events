@@ -1,10 +1,28 @@
-# Horus Events
+# Horus Events 
 
-> Simple asynchronous events for Kotlin
+> Simple asynchronous events for Kotlin 
+
+[![Download](https://api.bintray.com/packages/vemilyus/horus/horus-events/images/download.svg)][bintray-url]
+
+[bintray-url]: https://bintray.com/vemilyus/horus/horus-events/_latestVersion
 
 ## Prerequisites
  - Kotlin 1.3
  - Coroutines 1.0.0
+ 
+## Download
+
+The library is available on bintray.
+
+```groovy
+repositories {
+    maven { url 'https://dl.bintray.com/vemilyus/horus' }
+}
+
+dependencies {
+    compile 'com.vemilyus.horus:horus-events:1.3.0'
+}
+```
  
 ## How-To
 
