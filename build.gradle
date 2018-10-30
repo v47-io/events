@@ -171,4 +171,6 @@ if (bintrayUser != null && bintrayKey != null && !project.version.endsWith('-SNA
             vcsUrl = 'https://github.com/vemilyus/horus-events'
         }
     }
+
+    publish.dependsOn('bintrayUpload')
 }
