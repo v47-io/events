@@ -159,6 +159,8 @@ def bintrayUser = project.hasProperty('bintrayUser') ? project.property('bintray
 def bintrayKey = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.getenv('BINTRAY_KEY')
 
 if (bintrayUser != null && bintrayKey != null && !project.version.endsWith('-SNAPSHOT')) {
+    apply plugin: 'com.jfrog.bintray'
+
     bintray {
         user = bintrayUser
         key = bintrayKey
