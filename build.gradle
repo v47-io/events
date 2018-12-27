@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
-        classpath "gradle.plugin.io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektPluginVersion"
+        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektPluginVersion"
         classpath "net.researchgate:gradle-release:$releasePluginVersion"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
 
@@ -32,6 +32,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jaredsburrows.license'
 
 repositories {
+    jcenter()
     mavenCentral()
 }
 
