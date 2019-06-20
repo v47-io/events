@@ -20,7 +20,7 @@ open class DefaultEventEmitter(private val failFast: Boolean = false) : EventEmi
     private val listeners = mutableMapOf<EventKey<*>, MutableList<suspend (Any) -> Unit>>()
     private val listenersOnce = mutableMapOf<EventKey<*>, MutableList<suspend (Any) -> Unit>>()
 
-    @Suppress("TooGenericExceptionCaught")
+    @Suppress("LongMethod", "TooGenericExceptionCaught")
     override suspend fun <T : Any> emit(key: EventKey<T>, payload: T) {
         listeners[key]?.forEach {
             try {
