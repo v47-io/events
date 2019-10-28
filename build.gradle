@@ -94,7 +94,7 @@ detekt {
 }
 
 jacoco {
-    toolVersion = '0.8.2'
+    toolVersion = '0.8.5'
 }
 
 test {
@@ -113,16 +113,18 @@ release {
 }
 
 dokka {
-    moduleName = 'horus-events'
+    configuration {
+        moduleName = 'horus-events'
 
-    outputFormat = 'html'
-    outputDirectory = "$buildDir/javadoc"
+        outputFormat = 'html'
+        outputDirectory = "$buildDir/javadoc"
 
-    jdkVersion = 8
+        jdkVersion = 6
 
-    impliedPlatforms = ["JVM"]
+        impliedPlatforms = ["JVM"]
 
-    noStdlibLink = false
+        noStdlibLink = false
+    }
 }
 
 task packageSources(type: Jar) {
