@@ -7,8 +7,8 @@
 [bintray-url]: https://bintray.com/vemilyus/horus/horus-events/_latestVersion
 
 ## Prerequisites
- - Kotlin 1.3
- - Coroutines 1.0.0
+ - Kotlin 1.4.0
+ - Coroutines 1.3.9
  
 ## Download
 
@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.vemilyus.horus:horus-events:1.3.0'
+    compile 'com.vemilyus.horus:horus-events:1.5.0'
 }
 ```
  

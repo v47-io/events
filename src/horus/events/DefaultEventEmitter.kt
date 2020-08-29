@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory
  *
  * @since Horus Events 1.0.0
  */
-@SinceKotlin("1.3")
 open class DefaultEventEmitter(private val failFast: Boolean = false) : EventEmitter {
     private val log = LoggerFactory.getLogger(javaClass)!!
 

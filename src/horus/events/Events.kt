@@ -28,7 +28,6 @@ import kotlin.coroutines.EmptyCoroutineContext
  *
  * @since Horus Events 1.0.0
  */
-@SinceKotlin("1.0")
 interface EventKey<out T : Any>
 
 /**
@@ -40,7 +39,6 @@ interface EventKey<out T : Any>
  *
  * @since Horus Events 1.0.0
  */
-@SinceKotlin("1.3")
 interface EventEmitter {
     /**
      * Emits the event identified by the event key with the specified payload
@@ -108,7 +106,6 @@ interface EventEmitter {
  *
  * @since Horus Events 1.0.0
  */
-@SinceKotlin("1.3")
 fun <T : Any> EventEmitter.emitBlocking(key: EventKey<T>,
                                         payload: T,
                                         coroutineContext: CoroutineContext = EmptyCoroutineContext

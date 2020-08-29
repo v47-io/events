@@ -12,6 +12,8 @@ plugins {
 
     id 'maven'
     id 'maven-publish'
+
+    id 'com.jfrog.bintray' version '1.8.5' apply false
 }
 
 sourceSets {
@@ -45,7 +47,8 @@ compileTestKotlin {
 }
 
 repositories {
-    maven { url nexusUrl }
+    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -147,42 +150,24 @@ publishing {
     }
 }
 
-publishing {
-    publications {
-        mavenProject(MavenPublication) {
-            from components.java
-            groupId project.group
-            artifactId project.name
-            version project.version
+def bintrayUser = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+def bintrayKey = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.getenv('BINTRAY_KEY')
 
-            artifact packageSources {
-                classifier 'sources'
-            }
+if (bintrayUser != null && bintrayKey != null && !project.version.endsWith('-SNAPSHOT')) {
+    apply plugin: 'com.jfrog.bintray'
 
-            artifact packageJavadoc {
-                classifier 'javadoc'
-            }
+    bintray {
+        user = bintrayUser
+        key = bintrayKey
+        publications = ['MavenPublication']
+
+        pkg {
+            repo = 'horus'
+            name = project.name
+            licenses = ['Apache-2.0']
+            vcsUrl = 'https://github.com/vemilyus/horus-events'
         }
     }
 
-    def nexusUser = project.hasProperty('nexusUser') ? project.property('nexusUser') : System.getenv('NEXUS_USER')
-    def nexusPass = project.hasProperty('nexusPass') ? project.property('nexusPass') : System.getenv('NEXUS_PASS')
-
-    if (nexusUser != null && nexusPass != null) {
-        repositories {
-            maven {
-                name 'vemilyus-nexus'
-
-                if (project.version.endsWith('-SNAPSHOT'))
-                    url 'https://nexus.vemilyus.com/repository/snapshots/'
-                else
-                    url 'https://nexus.vemilyus.com/repository/releases/'
-
-                credentials(PasswordCredentials) {
-                    username nexusUser
-                    password nexusPass
-                }
-            }
-        }
-    }
+    publish.dependsOn('bintrayUpload')
 }
