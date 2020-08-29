@@ -1,1 +1,5 @@
-enableFeaturePreview('STABLE_PUBLISHING')
+pluginManagement {
+    repositories {
+        maven { url nexusUrl }
+    }
+}

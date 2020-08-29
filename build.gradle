@@ -1,39 +1,17 @@
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven { url "https://plugins.gradle.org/m2" }
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.4.0'
 
-        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektPluginVersion"
-        classpath "net.researchgate:gradle-release:$releasePluginVersion"
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
+    id 'io.gitlab.arturbosch.detekt' version '1.11.0'
+    id 'jacoco'
+    id 'de.jansauer.printcoverage' version '2.0.0'
 
-        classpath "com.jaredsburrows:gradle-license-plugin:0.8.41"
+    id 'net.researchgate.release' version '2.8.1'
 
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
-    }
-}
+    id 'org.jetbrains.dokka' version '0.10.1'
+    id 'com.github.hierynomus.license' version '0.15.0'
 
-apply plugin: 'java-library'
-apply plugin: 'kotlin'
-
-apply plugin: 'jacoco'
-apply plugin: 'io.gitlab.arturbosch.detekt'
-
-apply plugin: "net.researchgate.release"
-apply plugin: 'org.jetbrains.dokka'
-
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
-
-apply plugin: 'com.jaredsburrows.license'
-
-repositories {
-    jcenter()
-    mavenCentral()
+    id 'maven'
+    id 'maven-publish'
 }
 
 sourceSets {
@@ -66,30 +44,42 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = '1.6'
 }
 
+repositories {
+    maven { url nexusUrl }
+}
+
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion"
 
-    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    implementation "org.slf4j:slf4j-api:$slf4jVersion"
 
-    testCompile "ch.qos.logback:logback-classic:$logbackVersion"
-    testCompile 'org.apache.commons:commons-compress:1.17'
+    testImplementation "ch.qos.logback:logback-classic:$logbackVersion"
 
-    testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-    testCompile "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
     testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
 }
 
 detekt {
     input = files('src')
     config = files('detekt.yml')
-    filters = '.*test.*,.*/resources/.*,.*/tmp/.*'
 
     reports {
         xml {
             enabled = true
             destination = file("$buildDir/reports/detekt.xml")
         }
+    }
+}
+
+license {
+    exclude '**/*.json'
+    exclude '**/*.properties'
+    exclude '**/META-INF/**/*'
+
+    header = file('HEADER.txt')
+
+    ext {
+        year = Calendar.getInstance().get(Calendar.YEAR)
     }
 }
 
@@ -106,7 +96,6 @@ test {
 
 jacocoTestReport.dependsOn('check')
 build.dependsOn('jacocoTestReport')
-build.dependsOn('licenseReport')
 
 release {
     tagTemplate = 'v$version'
@@ -158,24 +147,42 @@ publishing {
     }
 }
 
-def bintrayUser = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-def bintrayKey = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.getenv('BINTRAY_KEY')
+publishing {
+    publications {
+        mavenProject(MavenPublication) {
+            from components.java
+            groupId project.group
+            artifactId project.name
+            version project.version
 
-if (bintrayUser != null && bintrayKey != null && !project.version.endsWith('-SNAPSHOT')) {
-    apply plugin: 'com.jfrog.bintray'
+            artifact packageSources {
+                classifier 'sources'
+            }
 
-    bintray {
-        user = bintrayUser
-        key = bintrayKey
-        publications = ['MavenPublication']
-
-        pkg {
-            repo = 'horus'
-            name = project.name
-            licenses = ['Apache-2.0']
-            vcsUrl = 'https://github.com/vemilyus/horus-events'
+            artifact packageJavadoc {
+                classifier 'javadoc'
+            }
         }
     }
 
-    publish.dependsOn('bintrayUpload')
+    def nexusUser = project.hasProperty('nexusUser') ? project.property('nexusUser') : System.getenv('NEXUS_USER')
+    def nexusPass = project.hasProperty('nexusPass') ? project.property('nexusPass') : System.getenv('NEXUS_PASS')
+
+    if (nexusUser != null && nexusPass != null) {
+        repositories {
+            maven {
+                name 'vemilyus-nexus'
+
+                if (project.version.endsWith('-SNAPSHOT'))
+                    url 'https://nexus.vemilyus.com/repository/snapshots/'
+                else
+                    url 'https://nexus.vemilyus.com/repository/releases/'
+
+                credentials(PasswordCredentials) {
+                    username nexusUser
+                    password nexusPass
+                }
+            }
+        }
+    }
 }
