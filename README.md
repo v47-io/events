@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.vemilyus.horus:horus-events:1.5.0'
+    compile 'com.vemilyus.horus:horus-events:2.1.0'
 }
 ```
  
@@ -73,4 +73,4 @@ This is printed once
 
 ## License
 
-Horus Events is released under the terms of the Apache Software License 2.0
+Horus Events is released under the terms of the BSD 3-clause license
