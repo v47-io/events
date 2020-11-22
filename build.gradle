@@ -1,7 +1,7 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.20'
 
-    id 'io.gitlab.arturbosch.detekt' version '1.11.0'
+    id 'io.gitlab.arturbosch.detekt' version '1.15.0-RC1'
     id 'jacoco'
     id 'de.jansauer.printcoverage' version '2.0.0'
 
