@@ -29,7 +29,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package horus.events
+package io.v47.events
 
 import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.CoroutineContext
@@ -38,11 +38,11 @@ import kotlin.coroutines.EmptyCoroutineContext
 /**
  * The event key is used to uniquely identify an event that is emitted by the event emitter.
  *
- * It also specifies the type of the event payload so it's possible to implement type-safe handlers
+ * It also specifies the type of the event payload so it's possible to implement type-safe handlers.
  *
  * @param T The type of the event payload
  *
- * @since Horus Events 1.0.0
+ * @since Events 1.0
  */
 interface EventKey<out T : Any>
 
@@ -53,7 +53,7 @@ interface EventKey<out T : Any>
  * It's possible to add listeners that are called everytime, and some that are only
  * called once and then removed.
  *
- * @since Horus Events 1.0.0
+ * @since Events 1.0
  */
 interface EventEmitter {
     /**
@@ -63,7 +63,7 @@ interface EventEmitter {
      * @param payload Data that is passed to the listeners
      * @param T The type of the payload
      *
-     * @since Horus Events 1.0.0
+     * @since Events 1.0
      */
     suspend fun <T : Any> emit(key: EventKey<T>, payload: T)
 
@@ -74,30 +74,30 @@ interface EventEmitter {
      * @param block The listener for the event's payload
      * @param T The type of the event's payload
      *
-     * @since Horus Events 1.0.0
+     * @since Events 1.0
      */
     fun <T : Any> on(key: EventKey<T>, block: (suspend (T) -> Unit))
 
     /**
      * Registers a listener for the specified event key that is called
-     * only once and then discarded
+     * only once and then discarded.
      *
      * @param key The event key
      * @param block The listener for the event's payload
      * @param T The type of the event's payload
      *
-     * @since Horus Events 1.0.0
+     * @since Events 1.0
      */
     fun <T : Any> once(key: EventKey<T>, block: (suspend (T) -> Unit))
 
     /**
-     * Discards all listener for the specified event key.
+     * Discards all listenerl for the specified event key.
      *
-     * Discards all listener if no key is specified
+     * If not key is specified all listeners are discarded.
      *
      * @param key The event key
      *
-     * @since Horus Events 1.0.0
+     * @since Events 1.0
      */
     fun clear(key: EventKey<*>? = null)
 
@@ -106,7 +106,7 @@ interface EventEmitter {
      *
      * @param listener
      *
-     * @since Horus Events 1.0.0
+     * @since Events 1.0
      */
     fun <T : Any> remove(listener: (suspend (T) -> Unit))
 }
@@ -120,7 +120,7 @@ interface EventEmitter {
  * @param coroutineContext The coroutine context for the blocking call
  * @param T The type of the payload
  *
- * @since Horus Events 1.0.0
+ * @since Events 1.0
  */
 fun <T : Any> EventEmitter.emitBlocking(
     key: EventKey<T>,

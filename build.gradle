@@ -7,11 +7,11 @@ plugins {
 
     id 'net.researchgate.release' version '2.8.1'
 
-    id 'org.jetbrains.dokka' version '0.10.1'
+    id 'org.jetbrains.dokka' version '1.4.20'
     id 'com.github.hierynomus.license' version '0.15.0'
 
-    id 'maven'
     id 'maven-publish'
+    id 'name.remal.maven-publish-ossrh' version '1.1.4' apply false
 
     id 'com.jfrog.bintray' version '1.8.5' apply false
 }
@@ -56,10 +56,11 @@ dependencies {
 
     implementation "org.slf4j:slf4j-api:$slf4jVersion"
 
-    testImplementation "ch.qos.logback:logback-classic:$logbackVersion"
-
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+
     testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+    testRuntime "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
 detekt {
@@ -104,70 +105,87 @@ release {
     tagTemplate = 'v$version'
 }
 
-dokka {
-    configuration {
-        moduleName = 'horus-events'
-
-        outputFormat = 'html'
-        outputDirectory = "$buildDir/javadoc"
-
-        jdkVersion = 6
-
-        impliedPlatforms = ["JVM"]
-
-        noStdlibLink = false
-    }
+dokkaJavadoc {
+    moduleName = 'v47.io Events'
 }
 
-task packageSources(type: Jar) {
-    classifier = 'sources'
+task sourcesJar(type: Jar) {
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
-task packageJavadoc(type: Jar, dependsOn: dokka) {
-    classifier = 'javadoc'
-    from "$buildDir/javadoc"
+task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+    archiveClassifier = 'javadoc'
+    from dokkaJavadoc.outputDirectory
 }
 
-artifacts.archives packageSources, packageJavadoc
+artifacts {
+    archives(sourcesJar)
+    archives(javadocJar)
+}
 
 publishing {
     publications {
-        MavenPublication(MavenPublication) {
-            from components.java
+        maven(MavenPublication) {
             groupId project.group
             artifactId project.name
             version project.version
 
-            artifact packageSources {
+            from components.java
+
+            artifact sourcesJar {
                 classifier 'sources'
             }
 
-            artifact packageJavadoc {
+            artifact javadocJar {
                 classifier 'javadoc'
+            }
+
+            pom {
+                name = 'Events for Kotlin'
+                description = 'Simple asynchronous events for Kotlin'
+                url = 'https://github.com/v47-io/events'
+
+                licenses {
+                    license {
+                        name = 'BSD 3-Clause License'
+                        url = 'https://opensource.org/licenses/BSD-3-Clause'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'vemilyus'
+                        name = 'Alex Katlein'
+                        email = 'dev@vemilyus.com'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:git://github.com/v47-io/events.git'
+                    developerConnection = 'scm:git:git://github.com/v47-io/events.git'
+                    url = 'https://github.com/v47-io/events'
+                }
             }
         }
     }
 }
 
-def bintrayUser = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-def bintrayKey = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.getenv('BINTRAY_KEY')
+def ossrhUser = project.hasProperty('ossrhUser') ? project.property('ossrhUser') : System.getenv('OSSRH_USER')
+def ossrhPass = project.hasProperty('ossrhPass') ? project.property('ossrhPass') : System.getenv('OSSRH_PASS')
 
-if (bintrayUser != null && bintrayKey != null && !project.version.endsWith('-SNAPSHOT')) {
-    apply plugin: 'com.jfrog.bintray'
+if (ossrhUser != null && ossrhPass != null /*&& !project.version.endsWith('-SNAPSHOT')*/) {
+    apply plugin: 'signing'
+    apply plugin: 'name.remal.maven-publish-ossrh'
 
-    bintray {
-        user = bintrayUser
-        key = bintrayKey
-        publications = ['MavenPublication']
-
-        pkg {
-            repo = 'horus'
-            name = project.name
-            licenses = ['Apache-2.0']
-            vcsUrl = 'https://github.com/vemilyus/horus-events'
+    publishing {
+        repositories {
+            ossrh {
+                credentials {
+                    username = ossrhUser
+                    password = ossrhPass
+                }
+            }
         }
     }
-
-    publish.dependsOn('bintrayUpload')
 }

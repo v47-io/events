@@ -29,7 +29,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package horus.events
+package io.v47.events
 
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
@@ -39,12 +39,13 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * This is the default implementation of an event emitter which can be extended
  * or delegated to.
  *
- * It provides the option to 'fail fast' which means that exceptions thrown
- * by event listeners aren't logged, but rethrown.
+ * It provides the option to fail fast which means that exceptions thrown
+ * by event listeners aren't logged, but rethrown immediately and further listeners
+ * are not called.
  *
  * @param failFast Indicates whether to rethrow exceptions caused by event handlers
  *
- * @since Horus Events 1.0.0
+ * @since Events 1.0
  */
 open class DefaultEventEmitter(private val failFast: Boolean = false) : EventEmitter {
     private val log = LoggerFactory.getLogger(javaClass)!!
