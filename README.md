@@ -1,6 +1,8 @@
 # Events 
 
 > Simple asynchronous events for Kotlin
+ 
+![Build](https://github.com/v47-io/events/workflows/Build/badge.svg?branch=master)
 
 ## Prerequisites
  - Kotlin 1.4.20
