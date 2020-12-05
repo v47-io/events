@@ -18,7 +18,7 @@ jobs:
           java-version: 11
       - name: Prepare environment
         run: |
-          echo 'GRADLE_CACHE=.cache/gradle/' >> $GITHUB_ENV
+          echo 'GRADLE_CACHE=./.cache/gradle/' >> $GITHUB_ENV
           echo 'GRADLE_CMD=./gradlew --no-daemon --console=plain -g $GRADLE_CACHE' >> $GITHUB_ENV
           chmod +x ./gradlew
       - name: Gradle cache
