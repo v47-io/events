@@ -17,21 +17,11 @@ jobs:
         with:
           java-version: 11
       - name: Prepare environment
-        run: |
-          echo 'GRADLE_CACHE=./.cache/gradle/' >> $GITHUB_ENV
-          echo 'GRADLE_CMD=./gradlew --no-daemon --console=plain -g $GRADLE_CACHE' >> $GITHUB_ENV
-          chmod +x ./gradlew
-      - name: Gradle cache
-        uses: actions/cache@v2
+        run: chmod +x ./gradlew
+      - name: Build and test using gradle
+        uses: burrunan/gradle-cache-action@v1
         with:
-          path: ${{ env.GRADLE_CACHE }}
-          key: ${{ runner.os }}-build-gradle-cache-${{ hashFiles('build.gradle') }}-${{ hashFiles('**/libraries.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-build-gradle-cache-
-      - name: Build with Gradle
-        run: $GRADLE_CMD assemble
-      - name: Run the tests with Gradle
-        run: $GRADLE_CMD check
+          arguments: --no-daemon --console=plain build
       - name: Archive logs on failure
         if: ${{ failure() }}
         uses: actions/upload-artifact@v2
