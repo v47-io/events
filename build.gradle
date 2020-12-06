@@ -36,13 +36,16 @@ sourceSets {
 compileKotlin {
     kotlinOptions {
         freeCompilerArgs = ['-Xno-param-assertions', '-Xno-call-assertions']
-        kotlinOptions.jvmTarget = '1.6'
+        kotlinOptions.jvmTarget = '1.8'
     }
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = '1.6'
+    kotlinOptions.jvmTarget = '1.8'
 }
+
+sourceCompatibility = 8
+targetCompatibility = 8
 
 repositories {
     jcenter()
