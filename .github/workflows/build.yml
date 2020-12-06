@@ -32,7 +32,7 @@ jobs:
         if: ${{ !endsWith(steps.version_property.outputs.value, '-SNAPSHOT') }}
         uses: burrunan/gradle-cache-action@v1
         with:
-          arguments: --console=plain releaseNexusRepositories
+          arguments: --console=plain publish releaseNexusRepositories
           execution-only-caches: true
         env:
           OSSRH_USER: ${{ secrets.OSSRH_USER }}
