@@ -1,8 +1,13 @@
 # Events 
 
 > Simple asynchronous events for Kotlin
- 
-![Build](https://github.com/v47-io/events/workflows/Build/badge.svg?branch=master)
+
+[![Maven Central][maven-central-badge-svg]][maven-central-badge-url] ![Build][build-badge]
+
+[maven-central-badge-url]: https://maven-badges.herokuapp.com/maven-central/io.v47/events
+[maven-central-badge-svg]: https://maven-badges.herokuapp.com/maven-central/io.v47/events/badge.svg
+
+[build-badge]: https://github.com/v47-io/events/workflows/Build/badge.svg?branch=master
 
 ## Prerequisites
  - Kotlin 1.4.20
