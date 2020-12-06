@@ -174,7 +174,7 @@ publishing {
 def ossrhUser = project.hasProperty('ossrhUser') ? project.property('ossrhUser') : System.getenv('OSSRH_USER')
 def ossrhPass = project.hasProperty('ossrhPass') ? project.property('ossrhPass') : System.getenv('OSSRH_PASS')
 
-if (ossrhUser != null && ossrhPass != null /*&& !project.version.endsWith('-SNAPSHOT')*/) {
+if (ossrhUser != null && ossrhPass != null && !project.version.endsWith('-SNAPSHOT')) {
     apply plugin: 'signing'
     apply plugin: 'name.remal.maven-publish-ossrh'
 

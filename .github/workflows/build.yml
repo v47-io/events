@@ -22,6 +22,24 @@ jobs:
         uses: burrunan/gradle-cache-action@v1
         with:
           arguments: --console=plain build
+      - name: Read library version
+        id: version_property
+        uses: christian-draeger/read-properties@1.0.1
+        with:
+          path: ./gradle.properties
+          property: version
+      - name: Publish to Central Repository
+        if: ${{ !endsWith(steps.version_property.outputs.value, '-SNAPSHOT') }}
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          arguments: --console=plain releaseNexusRepositories
+          execution-only-caches: true
+        env:
+          OSSRH_USER: ${{ secrets.OSSRH_USER }}
+          OSSRH_PASS: ${{ secrets.OSSRH_PASS }}
+          SIGNING_PASSWORD: ${{ secrets.OSSRH_SIGNING_PASSWORD }}
+          SIGNING_KEY_ID: ${{ secrets.OSSRH_SIGNING_KEY_ID }}
+          SIGNING_SECRET_KEY_RING_BASE64: ${{ secrets.OSSRH_SIGNING_SECRET_KEY_RING_BASE64 }}
       - name: Archive logs on failure
         if: ${{ failure() }}
         uses: actions/upload-artifact@v2
