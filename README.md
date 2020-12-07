@@ -2,10 +2,9 @@
 
 > Simple asynchronous events for Kotlin
 
-[![Maven Central][maven-central-badge-svg]][maven-central-badge-url] ![Build][build-badge]
+![Maven metadata URL][maven-central-badge-img] ![Build][build-badge]
 
-[maven-central-badge-url]: https://maven-badges.herokuapp.com/maven-central/io.v47/events
-[maven-central-badge-svg]: https://maven-badges.herokuapp.com/maven-central/io.v47/events/badge.svg
+[maven-central-badge-img]: https://img.shields.io/maven-metadata/v?label=maven%20central&metadataUrl=https%3A%2F%2Frepo1.maven.org%2Fmaven2%2Fio%2Fv47%2Fevents%2Fmaven-metadata.xml
 
 [build-badge]: https://github.com/v47-io/events/workflows/Build/badge.svg?branch=master
 
