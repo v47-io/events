@@ -208,7 +208,7 @@ if (!ossrhUser.isNullOrBlank() && !ossrhPass.isNullOrBlank() && !"${project.vers
 
     publishing {
         repositories {
-            configure<RepositoryHandlerOssrhExtension> {
+            withConvention(RepositoryHandlerOssrhExtension::class) {
                 ossrh {
                     credentials {
                         username = ossrhUser
