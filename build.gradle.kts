@@ -4,8 +4,6 @@ import name.remal.gradle_plugins.plugins.publish.ossrh.RepositoryHandlerOssrhExt
 import java.util.*
 
 plugins {
-    val licenseVersion = "0.15.0"
-
     kotlin("jvm") version "1.4.31"
 
     id("io.gitlab.arturbosch.detekt") version "1.16.0-RC3"
@@ -16,8 +14,8 @@ plugins {
 
     id("org.jetbrains.dokka") version "1.4.20"
 
-    id("com.github.hierynomus.license") version licenseVersion
-    id("com.github.hierynomus.license-report") version licenseVersion
+    id("com.github.hierynomus.license") version "0.15.0"
+    id("com.github.jk1.dependency-license-report") version "1.16"
 
     id("maven-publish")
     id("name.remal.maven-publish-ossrh") version "1.2.2" apply false
