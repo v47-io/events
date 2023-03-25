@@ -5,14 +5,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "1.7.22"
+    kotlin("jvm") version "1.8.10"
 
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
     id("jacoco")
 
     id("net.researchgate.release") version "3.0.2"
 
-    id("org.jetbrains.dokka") version "1.7.20"
+    id("org.jetbrains.dokka") version "1.8.10"
 
     id("com.github.hierynomus.license") version "0.16.1"
     id("com.github.jk1.dependency-license-report") version "2.1"
@@ -46,20 +46,13 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("org.slf4j:slf4j-api:1.7.36")
+    implementation("org.slf4j:slf4j-api:2.0.7")
 
     val junitVersion = "5.9.2"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testRuntimeOnly("ch.qos.logback:logback-classic:1.2.12")
-}
-
-detekt {
-    source = files("src")
-    config = files("detekt.yml")
-
-
+    testRuntimeOnly("ch.qos.logback:logback-classic:1.4.6")
 }
 
 tasks.detekt {
