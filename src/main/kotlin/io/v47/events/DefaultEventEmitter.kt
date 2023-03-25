@@ -31,6 +31,8 @@
  */
 package io.v47.events
 
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -68,15 +70,18 @@ open class DefaultEventEmitter(private val failFast: Boolean = false) : EventEmi
     }
 
     private suspend fun Iterable<suspend (Any) -> Unit>.callAll(payload: Any) =
-        forEach {
-            @Suppress("TooGenericExceptionCaught")
-            try {
-                it(payload)
-            } catch (x: Exception) {
-                if (failFast)
-                    throw x
-                else
-                    log.warn("Caught exception in listener", x)
+        coroutineScope {
+            forEach {
+                launch {
+                    runCatching {
+                        it(payload)
+                    }.onFailure { x ->
+                        if (failFast)
+                            throw x
+                        else
+                            log.warn("Exception caught in listener", x)
+                    }
+                }
             }
         }
 
