@@ -1,7 +1,7 @@
 /**
  * BSD 3-Clause License
  *
- * Copyright (c) 2020, Alex Katlein
+ * Copyright (c) 2023, Alex Katlein
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,9 +45,12 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * by event listeners aren't logged, but rethrown immediately and further listeners
  * are not called.
  *
+ * Listeners are called concurrently, so the order of execution doesn't necessarily
+ * match the order of registration.
+ *
  * @param failFast Indicates whether to rethrow exceptions caused by event handlers
  *
- * @since Events 1.0
+ * @since Events 2.0
  */
 open class DefaultEventEmitter(private val failFast: Boolean = false) : EventEmitter {
     private val log = LoggerFactory.getLogger(javaClass)!!

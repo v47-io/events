@@ -1,7 +1,7 @@
 /**
  * BSD 3-Clause License
  *
- * Copyright (c) 2020, Alex Katlein
+ * Copyright (c) 2023, Alex Katlein
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 /**
  * The event key is used to uniquely identify an event that is emitted by the event emitter.
  *
- * It also specifies the type of the event payload so it's possible to implement type-safe handlers.
+ * It also specifies the type of the event payload to enable implementation of type-safe handlers.
  *
  * @param T The type of the event payload
  *
