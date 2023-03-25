@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 17
+          distribution: temurin
       - name: Prepare environment
         run: chmod +x ./gradlew
       - name: Build and test using gradle
