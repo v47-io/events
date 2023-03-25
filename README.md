@@ -9,8 +9,8 @@
 [build-badge]: https://github.com/v47-io/events/workflows/Build/badge.svg?branch=master
 
 ## Requirements
- - Kotlin 1.4.31
- - Coroutines 1.4.3
+ - Kotlin 1.7.22
+ - Coroutines 1.6.4
  
 ## Download
 

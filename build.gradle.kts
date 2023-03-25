@@ -1,46 +1,28 @@
 import name.remal.gradle_plugins.dsl.extensions.applyPlugin
-import name.remal.gradle_plugins.dsl.extensions.testRuntime
 import name.remal.gradle_plugins.plugins.publish.ossrh.RepositoryHandlerOssrhExtension
+import org.gradle.api.JavaVersion.VERSION_17
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "1.4.31"
+    kotlin("jvm") version "1.7.22"
 
-    id("io.gitlab.arturbosch.detekt") version "1.16.0-RC3"
+    id("io.gitlab.arturbosch.detekt") version "1.22.0"
     id("jacoco")
-    id("de.jansauer.printcoverage") version "2.0.0"
 
-    id("net.researchgate.release") version "2.8.1"
+    id("net.researchgate.release") version "3.0.2"
 
-    id("org.jetbrains.dokka") version "1.4.20"
+    id("org.jetbrains.dokka") version "1.7.20"
 
-    id("com.github.hierynomus.license") version "0.15.0"
-    id("com.github.jk1.dependency-license-report") version "1.16"
+    id("com.github.hierynomus.license") version "0.16.1"
+    id("com.github.jk1.dependency-license-report") version "2.1"
 
     id("maven-publish")
-    id("name.remal.maven-publish-ossrh") version "1.2.2" apply false
+    id("name.remal.maven-publish-ossrh") version "1.5.0" apply false
 }
 
-sourceSets.main {
-    withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
-        kotlin.setSrcDirs(listOf("src", "src-gen", "src-java"))
-    }
-
-    java.setSrcDirs(listOf("src-gen", "src-java"))
-    resources.setSrcDirs(listOf("resources", "resources-gen"))
-}
-
-sourceSets.test {
-    withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
-        kotlin.setSrcDirs(listOf("test", "test-java"))
-    }
-
-    java.setSrcDirs(listOf("test-java"))
-    resources.setSrcDirs(listOf("test-resources"))
-}
-
-java.sourceCompatibility = JavaVersion.VERSION_1_8
-java.targetCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = VERSION_17
+java.targetCompatibility = VERSION_17
 
 tasks.compileKotlin.configure {
     kotlinOptions {
@@ -49,39 +31,42 @@ tasks.compileKotlin.configure {
             "-Xno-call-assertions",
             "-Xno-receiver-assertions"
         )
-
-        jvmTarget = "1.8"
     }
 }
 
-tasks.compileTestKotlin.configure {
-    kotlinOptions.jvmTarget = "1.8"
+tasks.withType(KotlinCompile::class.java) {
+    kotlinOptions {
+        jvmTarget = "$VERSION_17"
+    }
 }
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
-    implementation("org.slf4j:slf4j-api:1.7.30")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.slf4j:slf4j-api:1.7.36")
 
-    val junitVersion = "5.7.1"
+    val junitVersion = "5.9.2"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
 
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testRuntime("ch.qos.logback:logback-classic:1.2.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testRuntimeOnly("ch.qos.logback:logback-classic:1.2.12")
 }
 
 detekt {
-    input = files("src")
+    source = files("src")
     config = files("detekt.yml")
 
+
+}
+
+tasks.detekt {
     reports {
         xml {
-            enabled = true
-            destination = file("$buildDir/reports/detekt.xml")
+            required.set(true)
+            outputLocation.set(file("$buildDir/reports/detekt.xml"))
         }
     }
 }
@@ -102,7 +87,7 @@ license {
 }
 
 jacoco {
-    toolVersion = "0.8.6"
+    toolVersion = "0.8.8"
 }
 
 tasks.test.configure {
@@ -117,7 +102,7 @@ tasks.jacocoTestReport.get().dependsOn(tasks.check)
 tasks.build.get().dependsOn(tasks.jacocoTestReport)
 
 release {
-    tagTemplate = "v\$version"
+    tagTemplate.set("v\$version")
 }
 
 tasks.jar.configure {
