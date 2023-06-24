@@ -5,17 +5,17 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
 plugins {
-    kotlin("jvm") version "1.8.10"
+    kotlin("jvm") version "1.8.22"
 
-    id("io.gitlab.arturbosch.detekt") version "1.22.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.0"
     id("jacoco")
 
     id("net.researchgate.release") version "3.0.2"
 
-    id("org.jetbrains.dokka") version "1.8.10"
+    id("org.jetbrains.dokka") version "1.8.20"
 
     id("com.github.hierynomus.license") version "0.16.1"
-    id("com.github.jk1.dependency-license-report") version "2.1"
+    id("com.github.jk1.dependency-license-report") version "2.4"
 
     id("maven-publish")
     id("name.remal.maven-publish-ossrh") version "1.5.0" apply false
@@ -45,14 +45,14 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
     implementation("org.slf4j:slf4j-api:2.0.7")
 
-    val junitVersion = "5.9.2"
+    val junitVersion = "5.9.3"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testRuntimeOnly("ch.qos.logback:logback-classic:1.4.6")
+    testRuntimeOnly("ch.qos.logback:logback-classic:1.4.8")
 }
 
 tasks.detekt {
@@ -80,7 +80,7 @@ license {
 }
 
 jacoco {
-    toolVersion = "0.8.8"
+    toolVersion = "0.8.10"
 }
 
 tasks.test.configure {

@@ -61,6 +61,10 @@ open class DefaultEventEmitter(private val failFast: Boolean = false) : EventEmi
     private val listenersOnce =
         ConcurrentHashMap<EventKey<*>, ConcurrentLinkedQueue<suspend (Any) -> Unit>>()
 
+    override fun hasListeners(key: EventKey<*>) =
+        listeners[key]?.isNotEmpty() == true ||
+                listenersOnce[key]?.isNotEmpty() == true
+
     override suspend fun <T : Any> emit(key: EventKey<T>, payload: T) {
         listeners[key]?.toList()?.callAll(payload)
 
@@ -70,6 +74,19 @@ open class DefaultEventEmitter(private val failFast: Boolean = false) : EventEmi
 
             listeners.callAll(payload)
         }
+    }
+
+    override suspend fun <T : Any> emit(key: EventKey<T>, payloadBuilder: () -> T) {
+        var listeners = listeners[key]?.toList()
+        listeners = listenersOnce[key]?.let { listenersQueue ->
+            val onceListeners = listenersQueue.toList()
+            listenersQueue.clear()
+
+            (listeners ?: mutableListOf()) + onceListeners
+        }
+
+        if (listeners?.isNotEmpty() == true)
+            listeners.callAll(payloadBuilder())
     }
 
     private suspend fun Iterable<suspend (Any) -> Unit>.callAll(payload: Any) =

@@ -57,6 +57,16 @@ interface EventKey<out T : Any>
  */
 interface EventEmitter {
     /**
+     * Checks whether there are listeners (both persistent and once) for the
+     * specified event key.
+     *
+     * @param key The key uniquely identifying an event
+     *
+     * @since Events 2.1
+     */
+    fun hasListeners(key: EventKey<*>): Boolean
+
+    /**
      * Emits the event identified by the event key with the specified payload
      *
      * @param key The key uniquely identifying the event
@@ -66,6 +76,26 @@ interface EventEmitter {
      * @since Events 1.0
      */
     suspend fun <T : Any> emit(key: EventKey<T>, payload: T)
+
+    /**
+     * Emits the event identified by the event with the payload created by the
+     * specified builder.
+     *
+     * The emitter may choose to not even call the builder if there are no listeners
+     * for the specified event key.
+     *
+     * This is useful when the payload is rather expensive to build, and it's not
+     * certain there will be a listener for that particular event key
+     *
+     * @param key The key uniquely identifying the event
+     * @param payloadBuilder The function building the actual payload
+     * @param T The type of the payload
+     *
+     * @since Events 2.1
+     */
+    suspend fun <T : Any> emit(key: EventKey<T>, payloadBuilder: () -> T) {
+        emit(key, payloadBuilder())
+    }
 
     /**
      * Registers a listener for the specified event key that is called everytime

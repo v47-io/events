@@ -32,7 +32,9 @@
 package io.v47.events
 
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertIterableEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -51,6 +53,22 @@ class EventsTest {
         StringEvent("Event no. 2"),
         StringEvent("Event no. 3")
     )
+
+    @Test
+    fun hasListenersTest() {
+        val emitter = DefaultEventEmitter()
+        emitter.once(StringEvent) {}
+
+        assertTrue(emitter.hasListeners(StringEvent))
+
+        emitter.on(StringEvent) {}
+
+        assertTrue(emitter.hasListeners(StringEvent))
+
+        emitter.clear()
+
+        assertFalse(emitter.hasListeners(StringEvent))
+    }
 
     @Test
     fun emitTest() {
@@ -72,6 +90,36 @@ class EventsTest {
         emitter.clear()
 
         assertIterableEquals(emitCheckList, events)
+    }
+
+    @Test
+    fun emitWithBuilderTest() {
+        var builderCalled = false
+
+        val emitter = DefaultEventEmitter()
+        emitter.on(StringEvent) { }
+        emitter.once(StringEvent) { }
+
+        runBlocking {
+            emitter.emit(StringEvent) {
+                builderCalled = true
+                StringEvent("this is a built payload")
+            }
+        }
+
+        assertTrue(builderCalled)
+
+        emitter.clear()
+        builderCalled = false
+
+        runBlocking {
+            emitter.emit(StringEvent) {
+                builderCalled = true
+                StringEvent("this is a built payload")
+            }
+        }
+
+        assertFalse(builderCalled)
     }
 
     @Test
