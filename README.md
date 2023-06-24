@@ -9,8 +9,8 @@
 [build-badge]: https://github.com/v47-io/events/workflows/Build/badge.svg?branch=master
 
 ## Requirements
- - Kotlin 1.8.10
- - Coroutines 1.6.4
+ - Kotlin 1.8.22
+ - Coroutines 1.7.1
  
 ## Download
 
@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.v47:events:2.0.0'
+    implementation 'io.v47:events:2.1.0'
 }
 ```
  
@@ -85,4 +85,4 @@ This is printed once
 
 ## License
 
-Events is released under the terms of the BSD 3-clause license
+Events is released under the terms of the BSD 3-clause-clear license
