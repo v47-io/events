@@ -15,13 +15,13 @@
 
 The library is available in the Central Repository.
 
-```groovy
+```kotlin
 repositories {
-    maven { mavenCentral() }
+    mavenCentral()
 }
 
 dependencies {
-    implementation 'io.v47:events:2.1.0'
+    implementation("io.v47:events:3.0.0")
 }
 ```
  
