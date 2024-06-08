@@ -4,21 +4,30 @@ import org.gradle.api.JavaVersion.VERSION_17
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.*
 
-plugins {
-    kotlin("jvm") version "1.8.22"
+buildscript {
+    dependencies {
+        classpath("name.remal:gradle-plugins:1.9.2")
+    }
 
-    id("io.gitlab.arturbosch.detekt") version "1.23.0"
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    kotlin("jvm") version "1.9.24"
+
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
     id("jacoco")
 
     id("net.researchgate.release") version "3.0.2"
 
-    id("org.jetbrains.dokka") version "1.8.20"
+    id("org.jetbrains.dokka") version "1.9.20"
 
     id("com.github.hierynomus.license") version "0.16.1"
     id("com.github.jk1.dependency-license-report") version "2.4"
 
     id("maven-publish")
-    id("name.remal.maven-publish-ossrh") version "1.5.0" apply false
 }
 
 java.sourceCompatibility = VERSION_17
@@ -45,14 +54,14 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-    implementation("org.slf4j:slf4j-api:2.0.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("org.slf4j:slf4j-api:2.0.13")
 
-    val junitVersion = "5.9.3"
+    val junitVersion = "5.10.2"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testRuntimeOnly("ch.qos.logback:logback-classic:1.4.8")
+    testRuntimeOnly("ch.qos.logback:logback-classic:1.5.6")
 }
 
 tasks.detekt {

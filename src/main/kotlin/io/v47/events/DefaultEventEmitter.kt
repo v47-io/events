@@ -1,7 +1,7 @@
 /**
  * BSD 3-Clause License
  *
- * Copyright (c) 2023, Alex Katlein
+ * Copyright (c) 2024, Alex Katlein
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,9 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
+private typealias AnyListener = suspend (Any) -> Unit
+private typealias ListenersQueue = ConcurrentLinkedQueue<AnyListener>
+
 /**
  * This is the default implementation of an event emitter which can be extended
  * or delegated to.
@@ -56,37 +59,33 @@ open class DefaultEventEmitter(private val failFast: Boolean = false) : EventEmi
     private val log = LoggerFactory.getLogger(javaClass)!!
 
     private val listeners =
-        ConcurrentHashMap<EventKey<*>, ConcurrentLinkedQueue<suspend (Any) -> Unit>>()
+        ConcurrentHashMap<EventKey<*>, ListenersQueue>()
 
     private val listenersOnce =
-        ConcurrentHashMap<EventKey<*>, ConcurrentLinkedQueue<suspend (Any) -> Unit>>()
+        ConcurrentHashMap<EventKey<*>, ListenersQueue>()
 
     override fun hasListeners(key: EventKey<*>) =
         listeners[key]?.isNotEmpty() == true ||
                 listenersOnce[key]?.isNotEmpty() == true
 
     override suspend fun <T : Any> emit(key: EventKey<T>, payload: T) {
-        listeners[key]?.toList()?.callAll(payload)
+        var actualListeners = listeners[key]?.toList()
+        actualListeners = listenersOnce.remove(key)?.let { listenersQueue ->
+            (actualListeners ?: mutableListOf()) + listenersQueue
+        } ?: actualListeners
 
-        listenersOnce[key]?.let { listenersQueue ->
-            val listeners = listenersQueue.toList()
-            listenersQueue.clear()
-
-            listeners.callAll(payload)
-        }
+        if (actualListeners?.isNotEmpty() == true)
+            actualListeners.callAll(payload)
     }
 
     override suspend fun <T : Any> emit(key: EventKey<T>, payloadBuilder: () -> T) {
-        var listeners = listeners[key]?.toList()
-        listeners = listenersOnce[key]?.let { listenersQueue ->
-            val onceListeners = listenersQueue.toList()
-            listenersQueue.clear()
+        var actualListeners = listeners[key]?.toList()
+        actualListeners = listenersOnce.remove(key)?.let { listenersQueue ->
+            (actualListeners ?: mutableListOf()) + listenersQueue
+        } ?: actualListeners
 
-            (listeners ?: mutableListOf()) + onceListeners
-        }
-
-        if (listeners?.isNotEmpty() == true)
-            listeners.callAll(payloadBuilder())
+        if (actualListeners?.isNotEmpty() == true)
+            actualListeners.callAll(payloadBuilder())
     }
 
     private suspend fun Iterable<suspend (Any) -> Unit>.callAll(payload: Any) =
@@ -108,15 +107,23 @@ open class DefaultEventEmitter(private val failFast: Boolean = false) : EventEmi
     override fun <T : Any> on(key: EventKey<T>, block: suspend (T) -> Unit) {
         @Suppress("UNCHECKED_CAST")
         listeners
-            .computeIfAbsent(key) { ConcurrentLinkedQueue() }
-            .add(block as (suspend (Any) -> Unit))
+            .compute(key) { _, existing ->
+                val listenersQueue = existing ?: ListenersQueue()
+                listenersQueue.add(block as AnyListener)
+
+                listenersQueue
+            }
     }
 
     override fun <T : Any> once(key: EventKey<T>, block: suspend (T) -> Unit) {
         @Suppress("UNCHECKED_CAST")
         listenersOnce
-            .computeIfAbsent(key) { ConcurrentLinkedQueue() }
-            .add(block as (suspend (Any) -> Unit))
+            .compute(key) { _, existing ->
+                val listenersQueue = existing ?: ListenersQueue()
+                listenersQueue.add(block as AnyListener)
+
+                listenersQueue
+            }
     }
 
     override fun clear(key: EventKey<*>?) {
