@@ -80,6 +80,8 @@ license {
         "**/META-INF/**/*"
     )
 
+    mapping("java", "SLASHSTAR_STYLE")
+
     header = file("HEADER.txt")
     skipExistingHeaders = false
 
@@ -89,7 +91,7 @@ license {
 }
 
 jacoco {
-    toolVersion = "0.8.10"
+    toolVersion = "0.8.12"
 }
 
 tasks.test.configure {
@@ -109,12 +111,7 @@ release {
 
 tasks.jar.configure {
     manifest {
-        val moduleNameRegex = Regex("""[^\w\.${"$"}_]""")
-
         attributes(
-            "Automatic-Module-Name" to "${project.group}.${project.name}"
-                .replace(moduleNameRegex, "_"),
-
             "Implementation-Version" to project.version,
             "Implementation-Title" to "Events for Kotlin"
         )
