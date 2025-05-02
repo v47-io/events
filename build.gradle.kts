@@ -1,40 +1,29 @@
-import name.remal.gradle_plugins.dsl.extensions.applyPlugin
-import name.remal.gradle_plugins.plugins.publish.ossrh.RepositoryHandlerOssrhExtension
-import org.gradle.api.JavaVersion.VERSION_17
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.vanniktech.maven.publish.SonatypeHost
+import java.net.URI
 import java.util.*
-
-buildscript {
-    dependencies {
-        classpath("name.remal:gradle-plugins:1.9.2")
-    }
-
-    repositories {
-        mavenCentral()
-    }
-}
+import java.util.Calendar.YEAR
 
 plugins {
-    kotlin("jvm") version "1.9.24"
+    kotlin("jvm") version "2.1.10"
 
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
     id("jacoco")
 
-    id("net.researchgate.release") version "3.0.2"
+    id("net.researchgate.release") version "3.1.0"
 
-    id("org.jetbrains.dokka") version "1.9.20"
+    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka-javadoc") version "2.0.0"
 
     id("com.github.hierynomus.license") version "0.16.1"
     id("com.github.jk1.dependency-license-report") version "2.4"
 
-    id("maven-publish")
+    id("com.vanniktech.maven.publish") version "0.31.0"
 }
 
-java.sourceCompatibility = VERSION_17
-java.targetCompatibility = VERSION_17
+kotlin {
+    jvmToolchain(17)
 
-tasks.compileKotlin.configure {
-    kotlinOptions {
+    compilerOptions {
         freeCompilerArgs = listOf(
             "-Xno-param-assertions",
             "-Xno-call-assertions",
@@ -43,32 +32,28 @@ tasks.compileKotlin.configure {
     }
 }
 
-tasks.withType(KotlinCompile::class.java) {
-    kotlinOptions {
-        jvmTarget = "$VERSION_17"
-    }
-}
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-    implementation("org.slf4j:slf4j-api:2.0.13")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.slf4j:slf4j-api:2.0.17")
 
-    val junitVersion = "5.10.2"
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    val junitVersion = "5.12.2"
+    testImplementation(platform("org.junit:junit-bom:$junitVersion"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
 
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testRuntimeOnly("ch.qos.logback:logback-classic:1.5.6")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("ch.qos.logback:logback-classic:1.5.18")
 }
 
 tasks.detekt {
     reports {
         xml {
             required.set(true)
-            outputLocation.set(file("$buildDir/reports/detekt.xml"))
+            outputLocation.set(file("${project.layout.buildDirectory.get()}/reports/detekt.xml"))
         }
     }
 }
@@ -83,10 +68,10 @@ license {
     mapping("java", "SLASHSTAR_STYLE")
 
     header = file("HEADER.txt")
-    skipExistingHeaders = false
+    skipExistingHeaders = true
 
     ext {
-        set("year", Calendar.getInstance().get(Calendar.YEAR))
+        set("year", Calendar.getInstance().get(YEAR))
     }
 }
 
@@ -98,7 +83,7 @@ tasks.test.configure {
     useJUnitPlatform()
 
     configure<JacocoTaskExtension> {
-        setDestinationFile(file("$buildDir/jacoco/test.exec"))
+        setDestinationFile(file("${project.layout.buildDirectory.get()}/jacoco/test.exec"))
     }
 }
 
@@ -118,86 +103,64 @@ tasks.jar.configure {
     }
 }
 
-tasks.dokkaJavadoc.configure {
-    moduleName.set("v47.io Events")
-}
+dokka {
+    dokkaSourceSets.main {
+        includes.from("$projectDir/docs.md")
 
-val sourcesJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
-}
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
 
-val javadocJar by tasks.registering(Jar::class) {
-    dependsOn(tasks.dokkaJavadoc)
-
-    archiveClassifier.set("javadoc")
-    from(tasks.dokkaJavadoc.get().outputDirectory)
-}
-
-publishing {
-    publications {
-        create("maven", MavenPublication::class) {
-            groupId = "${project.group}"
-            artifactId = project.name
-            version = "${project.version}"
-
-            from(components.getByName("java"))
-
-            artifact(sourcesJar) {
-                classifier = "sources"
+            val revision = "${project.version}".let { version ->
+                if (version.endsWith("-SNAPSHOT"))
+                    "main"
+                else
+                    "v$version"
             }
 
-            artifact(javadocJar) {
-                classifier = "javadoc"
-            }
+            remoteUrl = URI("https://github.com/v47-io/events/blob/$revision/src/main/kotlin")
+            remoteLineSuffix = "#L"
+        }
+    }
 
-            pom {
-                name.set("Events for Kotlin")
-                description.set("Simple asynchronous events for Kotlin")
-                url.set("https://github.com/v47-io/events")
+    pluginsConfiguration {
+        val copyright = "Copyright (c) ${Calendar.getInstance().get(YEAR)} the tmdb-api-client authors"
 
-                licenses {
-                    license {
-                        name.set("BSD 3-Clause License")
-                        url.set("https://opensource.org/licenses/BSD-3-Clause")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("vemilyus")
-                        name.set("Alex Katlein")
-                        email.set("dev@vemilyus.com")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/v47-io/events.git")
-                    developerConnection.set("scm:git:git://github.com/v47-io/events.git")
-                    url.set("https://github.com/v47-io/events")
-                }
-            }
+        html {
+            footerMessage = copyright
         }
     }
 }
 
-val ossrhUser: String? = project.findProperty("ossrhUser") as? String ?: System.getenv("OSSRH_USER")
-val ossrhPass: String? = project.findProperty("osshrPass") as? String ?: System.getenv("OSSRH_PASS")
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
 
-if (!ossrhUser.isNullOrBlank() && !ossrhPass.isNullOrBlank() && !"${project.version}".endsWith("-SNAPSHOT")) {
-    applyPlugin("signing")
-    applyPlugin("name.remal.maven-publish-ossrh")
+    coordinates("${project.group}", project.name, "${project.version}")
 
-    publishing {
-        repositories {
-            withConvention(RepositoryHandlerOssrhExtension::class) {
-                ossrh {
-                    credentials {
-                        username = ossrhUser
-                        password = ossrhPass
-                    }
-                }
+    pom {
+        name.set("Events for Kotlin")
+        description.set("Simple asynchronous events for Kotlin")
+        url.set("https://github.com/v47-io/events")
+
+        licenses {
+            license {
+                name.set("BSD 3-Clause License")
+                url.set("https://opensource.org/licenses/BSD-3-Clause")
             }
+        }
+
+        developers {
+            developer {
+                id.set("vemilyus")
+                name.set("Alex Katlein")
+                email.set("dev@vemilyus.com")
+            }
+        }
+
+        scm {
+            connection.set("scm:git:git://github.com/v47-io/events.git")
+            developerConnection.set("scm:git:git://github.com/v47-io/events.git")
+            url.set("https://github.com/v47-io/events")
         }
     }
 }
