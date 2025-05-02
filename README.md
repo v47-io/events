@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.v47:events:3.0.0")
+    implementation("io.v47:events:4.0.0")
 }
 ```
  
